@@ -1,0 +1,2 @@
+FLASK_APP=image_social
+FLASK_ENV=development
