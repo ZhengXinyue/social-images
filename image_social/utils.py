@@ -25,7 +25,7 @@ def generate_token(user, operation, expire_in=None, **kwargs):
     return s.dump(data)
 
 
-def validata_token(user, token, operation, new_password=None):
+def validate_token(user, token, operation, new_password=None):
     s = Serializer(current_app.config['SECRET_KEY'])
 
     try:
@@ -70,8 +70,23 @@ def redirect_back(default='main.index', **kwargs):
     return redirect(url_for(default, **kwargs))
 
 
+def rename_image(old_filename):
+    ext = os.path.splitext(old_filename)[1]
+    new_filename = uuid.uuid4().hex + ext
+    return new_filename
 
 
+def resize_image(image, filename, base_width):
+    filename, ext = os.path.splitext(filename)
+    img = Image.open(image)
+    if img.size[0] <= base_width:
+        return filename + ext
+    w_percent = (base_width / float(img.size[0]))
+    h_size = int((float(img.size[1]) * float(w_percent)))
+    img = img.resize((base_width, h_size), PIL.Image.ANTIALIAS)
 
+    filename += current_app.config['ALBUMY_PHOTO_SUFFIX'][base_width] + ext
+    img.save(os.path.join(current_app.config['ALBUMY_UPLOAD_PATH'], filename), optimize=True, quality=85)
+    return filename
 
 
